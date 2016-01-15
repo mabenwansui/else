@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>Examples</title>
+<meta name="description" content="">
+<meta name="keywords" content="">
+<script src="jquery.js"></script>
+</head>
+<style>
+h1{font-size: 18px; line-height: 24px;}
+pre{border:1px solid #eee; background: #f4f4f4; padding:20px;}
+</style>
+<body>
+<div id="container">
+###我是标题一
+	我是内容1
+	我是内容2
+###我是标题二
+	标题二1
+	标题二2
+###我是标题三
+	标题三1
+	标题三2
+		server {
+			listen       80;
+			server_name *.pc.lietou-static.com;
+			root /Users/maben/work/codeing/fe/dev;
+			index index.html index.htm;
+			if ($host ~ ^(.*)\.pc\.lietou-static\.com$){
+			  set $erji $1;
+			  rewrite ^\/*(.*)$ /$erji/pc/branches/20150731_crab_canid/$1;
+			}
+			location / {
+			  if ($uri ~ /revs/(.*)$){
+			    rewrite "^(.+?)/revs(/.+?)(_[^_]{8})(\.[\w]+)$" /$1$2$4 last;
+			  }
+			}
+		}
+###我是标题四		
+</div>
+<script>
+!(function(win){
+	function FormatHelp(html){ return this.init.apply(this, arguments) };
+	FormatHelp.prototype = {
+		init : function(html){
+			this.flag = false;
+			this.html = html;
+			return this.format( this.toArray() );
+		},
+		format : function(arr){
+			var rule  = this.rule,
+					rearr = [];
+			arr.forEach(function(v){
+				for(var i in rule){
+					var result = rule[i](v);
+					if(result){
+						rearr.push(result);
+						break;
+					}
+				}
+			});
+			return rearr.join("\n");
+		},
+		rule : {
+			h : function(item){
+				if(/^#{3,9}/i.test(item)){
+					return item.replace(/(^#{3,9})(.+$)/, function($1, $2, $3){
+					  var tag = "h"+ ($2.length-2);
+					  return "<"+tag+">"+$3+"</"+tag+">";
+					});
+				}else{ 
+					return false; 
+				};
+			},
+			p : function(item){
+				if(/(^\t)([^\t\s].+$)/.test(item)){
+					return item.replace(/(^\t)([^\t\s].+$)/, '<p>$2</p>');
+				}else{
+					return false;
+				}
+			},
+			pre : function(item){
+				if(/^\t{2,}[\s\S]*$/.test(item)){
+					return item.replace(/(^\t{2,}[\s\S]*$)/, '<pre>$1</pre>');
+				}else{
+					return false;
+				}
+			}
+		},
+		toArray : function(){
+			var A = this.html.match(/.+[^\n]*/g),
+					B = [],
+					str = "";
+			A.forEach(function(v, i){
+				if( /^\t{2,}.*$/.test(v) ){
+					str += v+"\n";
+					this.flag = true;
+					if(i>=A.length-1){
+						this.flag = false;
+						B.push(str);
+					}
+				}else{
+					if(this.flag) B.push(str);
+					B.push(v);					
+					this.flag = false;
+				}
+			});
+			return B;
+		}
+	};
+	win.format = function(html){
+		return new FormatHelp(html);
+	};
+})(window);
+
+var html = document.getElementById("container").innerHTML;
+document.getElementById("container").innerHTML = format(html);
+</script>
+</body>
+</html>
